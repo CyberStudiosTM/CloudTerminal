@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, net, protocol, session, shell } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, Menu, net, protocol, session, shell } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
@@ -37,7 +37,7 @@ function createWindow() {
     minWidth: 340,
     minHeight: 520,
     backgroundColor: '#e9e1f6',
-    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webviewTag: false },
+    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webviewTag: false, preload: path.join(__dirname, 'preload.cjs') },
   });
   window.webContents.on('will-navigate', (event, url) => {
     if (url === home) return;
@@ -48,6 +48,17 @@ function createWindow() {
   return window.loadURL(home);
 }
 
+ipcMain.handle('document:save', async (event, name, text) => {
+  if (event.senderFrame?.url !== home || !['index.html', 'transcript.txt'].includes(name) ||
+      typeof text !== 'string' || Buffer.byteLength(text) > 1024 * 1024) throw new Error('Invalid export.');
+  const result = await dialog.showSaveDialog(BrowserWindow.fromWebContents(event.sender), {
+    defaultPath: name,
+    filters: [{ name: 'Document', extensions: [path.extname(name).slice(1)] }],
+  });
+  if (result.canceled || !result.filePath) return false;
+  await require('node:fs/promises').writeFile(result.filePath, text, 'utf8');
+  return true;
+});
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
   session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));

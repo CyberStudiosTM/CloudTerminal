@@ -16,6 +16,7 @@ try {
     main: 'desktop/main.cjs',
   }, null, 2) + '\n');
   await cp(path.join(root, 'desktop', 'main.cjs'), path.join(staging, 'desktop', 'main.cjs'));
+  await cp(path.join(root, 'desktop', 'preload.cjs'), path.join(staging, 'desktop', 'preload.cjs'));
   await cp(path.join(root, 'dist'), path.join(staging, 'dist'), { recursive: true });
   await cp(path.join(root, 'LICENSE'), path.join(staging, 'LICENSE'));
   const [output] = await packager({

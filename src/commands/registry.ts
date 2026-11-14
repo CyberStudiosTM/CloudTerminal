@@ -23,7 +23,7 @@ interface Command {
 
 export const commands: readonly Command[] = [
   { name: 'help', usage: 'help', description: 'List commands.',
-    run: (_, { write }) => write(commands.map(item => `${item.usage}\n  ${item.description}`).join('\n')) },
+    run: (_, { write }) => write(commands.map(item => `${item.usage}\n  ${item.description}`).join('\n') + '\nsite [title]\n  Export a themed HTML starter.\ntranscript\n  Export the current output.\nhistory [search]\n  Search this session.\nls / cat <file>\n  Explore the virtual workspace.\nbyte pet\n  Pet Byte.') },
   { name: 'about', usage: 'about', description: 'Meet CloudTerminal.',
     run: (_, { write }) => write(`CloudTerminal is a simulated browser terminal by ${studio.name}.`) },
   { name: 'projects', usage: 'projects', description: 'Open CyberStudios links.',

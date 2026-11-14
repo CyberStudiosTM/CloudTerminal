@@ -14,6 +14,10 @@ export class CommandHistory {
     this.reset();
   }
 
+  search(query: string): string[] {
+    return this.entries.filter(entry => entry.toLowerCase().includes(query.toLowerCase()));
+  }
+
   reset(): void {
     this.cursor = this.entries.length;
     this.draft = '';

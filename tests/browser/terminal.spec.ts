@@ -94,3 +94,22 @@ test('fits a narrow viewport and respects reduced motion with accessible default
   const report = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(report.violations.map(({ id, nodes }) => ({ id, targets: nodes.map(node => node.target) }))).toEqual([]);
 });
+
+test('restores a workspace after reload and isolates session transcripts', async ({ page }) => {
+  await page.goto('/');
+  await run(page, 'byte pet');
+  await page.getByRole('button', { name: 'New session' }).click();
+  await expect(page.getByRole('log')).not.toContainText('rolls over');
+  await page.getByRole('button', { name: 'Session 1', exact: true }).click();
+  await expect(page.getByRole('log')).toContainText('rolls over');
+  await run(page, 'sky stars');
+  await page.getByLabel('Font size').fill('20');
+  await page.getByLabel('Font size').press('Tab');
+  await page.getByLabel('Profile name').fill('Night desk');
+  await page.getByRole('button', { name: 'Save profile' }).click();
+  await run(page, 'sky off');
+  await page.reload();
+  await page.getByLabel('Workspace profiles').selectOption({ label: 'Night desk' });
+  await expect(page.locator('#sky-art')).toContainText('✧');
+  await expect(page.getByRole('log')).toHaveCSS('font-size', '20px');
+});
